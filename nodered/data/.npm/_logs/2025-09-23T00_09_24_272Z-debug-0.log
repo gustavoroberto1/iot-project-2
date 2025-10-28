@@ -1,0 +1,38 @@
+0 verbose cli /usr/local/bin/node /usr/local/bin/npm
+1 info using npm@10.8.2
+2 info using node@v20.19.4
+3 silly config load:file:/usr/local/lib/node_modules/npm/npmrc
+4 silly config load:file:/data/.npmrc
+5 silly config load:file:/usr/src/node-red/.npmrc
+6 silly config load:file:/usr/local/etc/npmrc
+7 verbose title npm install node-red-contrib-uuid@0.0.4
+8 verbose argv "install" "--no-audit" "--no-update-notifier" "--no-fund" "--save" "--save-prefix" "~" "--omit" "dev" "--engine-strict" "node-red-contrib-uuid@0.0.4"
+9 verbose logfile logs-max:10 dir:/data/.npm/_logs/2025-09-23T00_09_24_272Z-
+10 verbose logfile /data/.npm/_logs/2025-09-23T00_09_24_272Z-debug-0.log
+11 silly packumentCache heap:2197815296 maxSize:549453824 maxEntrySize:274726912
+12 silly logfile done cleaning log files
+13 silly idealTree buildDeps
+14 silly fetch manifest node-red-contrib-uuid@0.0.4
+15 silly packumentCache full:https://registry.npmjs.org/node-red-contrib-uuid cache-miss
+16 http fetch GET 200 https://registry.npmjs.org/node-red-contrib-uuid 349ms (cache miss)
+17 silly packumentCache full:https://registry.npmjs.org/node-red-contrib-uuid set size:undefined disposed:false
+18 silly placeDep ROOT node-red-contrib-uuid@0.0.4 OK for: node-red-project@0.0.1 want: 0.0.4
+19 silly fetch manifest uuid@3.2.1
+20 silly packumentCache full:https://registry.npmjs.org/uuid cache-miss
+21 http fetch GET 200 https://registry.npmjs.org/uuid 91ms (cache miss)
+22 silly packumentCache full:https://registry.npmjs.org/uuid set size:undefined disposed:false
+23 silly placeDep ROOT uuid@3.2.1 OK for: node-red-contrib-uuid@0.0.4 want: 3.2.1
+24 silly reify moves {}
+25 silly tarball no local data for uuid@https://registry.npmjs.org/uuid/-/uuid-3.2.1.tgz. Extracting by manifest.
+26 silly tarball no local data for node-red-contrib-uuid@https://registry.npmjs.org/node-red-contrib-uuid/-/node-red-contrib-uuid-0.0.4.tgz. Extracting by manifest.
+27 http fetch GET 200 https://registry.npmjs.org/uuid/-/uuid-3.2.1.tgz 107ms (cache miss)
+28 warn deprecated uuid@3.2.1: Please upgrade  to version 7 or higher.  Older versions may use Math.random() in certain circumstances, which is known to be problematic.  See https://v8.dev/blog/math-random for details.
+29 http fetch GET 200 https://registry.npmjs.org/node-red-contrib-uuid/-/node-red-contrib-uuid-0.0.4.tgz 167ms (cache miss)
+30 silly ADD node_modules/uuid
+31 silly ADD node_modules/node-red-contrib-uuid
+32 verbose cwd /data
+33 verbose os Linux 5.15.167.4-microsoft-standard-WSL2
+34 verbose node v20.19.4
+35 verbose npm  v10.8.2
+36 verbose exit 0
+37 info ok

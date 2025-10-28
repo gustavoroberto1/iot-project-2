@@ -1,0 +1,407 @@
+[
+    {
+        "id": "c073de9ba7ed9db1",
+        "type": "tab",
+        "label": "IOT -> MQTT -> DB -> WS",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "dab3ad35f7fbabda",
+        "type": "mqtt-broker",
+        "name": "Broker",
+        "broker": "mosquitto",
+        "port": 1883,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "955b0537cc1cd302",
+        "type": "websocket-listener",
+        "path": "/ws/devices",
+        "wholemsg": "false"
+    },
+    {
+        "id": "37506c72251a603c",
+        "type": "mongodb4-client",
+        "name": "ConectionMongoDB",
+        "protocol": "mongodb",
+        "hostname": "mongo",
+        "port": "27017",
+        "dbName": "iot-project",
+        "appName": "",
+        "authSource": "",
+        "authMechanism": "DEFAULT",
+        "tls": false,
+        "tlsCAFile": "",
+        "tlsCertificateKeyFile": "",
+        "tlsInsecure": false,
+        "connectTimeoutMS": "30000",
+        "socketTimeoutMS": "0",
+        "minPoolSize": "0",
+        "maxPoolSize": "100",
+        "maxIdleTimeMS": "0",
+        "uri": "",
+        "advanced": "{}",
+        "uriTabActive": "tab-uri-simple"
+    },
+    {
+        "id": "a1b2c3d4e5f6g701",
+        "type": "mqtt-broker",
+        "name": "Mosquitto",
+        "broker": "127.0.0.1",
+        "port": "1883",
+        "tls": "",
+        "clientid": "nodered",
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "sessionExpiry": ""
+    },
+    {
+        "id": "fc3856078f0dd452",
+        "type": "mqtt in",
+        "z": "c073de9ba7ed9db1",
+        "name": "Device Info",
+        "topic": "device/+/info",
+        "qos": "1",
+        "datatype": "auto-detect",
+        "broker": "dab3ad35f7fbabda",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 200,
+        "y": 180,
+        "wires": [
+            [
+                "cb1462e0934a9a73"
+            ]
+        ]
+    },
+    {
+        "id": "de1a752d8ca4a0e6",
+        "type": "function",
+        "z": "c073de9ba7ed9db1",
+        "name": "Process Devices",
+        "func": "const deviceId = msg.topic.split(\"/\")[1];\nconst data = msg.payload;\nif (!deviceId) return null;\n\nmsg.collection = \"devices\";\nmsg.operation = \"updateOne\";\n\nconst updateObject = {\n    $set: {\n        device_id: deviceId,\n        model: data.model || null,\n        ip_address: data.ip_address || null,\n        mac_address: data.mac_address || null,\n        location: data.location || null,\n        update_at: new Date(),\n        raw: JSON.stringify(data)\n    },\n    $setOnInsert: { created_at: new Date(), _id: data._id }\n}\n\nmsg.payload = [{ device_id: deviceId }, updateObject, { upsert: true }];\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 610,
+        "y": 180,
+        "wires": [
+            [
+                "e2f46f02fa6dcced"
+            ]
+        ]
+    },
+    {
+        "id": "3d97eab662707380",
+        "type": "mqtt in",
+        "z": "c073de9ba7ed9db1",
+        "name": "Device Status",
+        "topic": "device/+/state",
+        "qos": "1",
+        "datatype": "auto-detect",
+        "broker": "dab3ad35f7fbabda",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 210,
+        "y": 260,
+        "wires": [
+            [
+                "660990a0e4fe5f49"
+            ]
+        ]
+    },
+    {
+        "id": "b04b7d98158a701c",
+        "type": "function",
+        "z": "c073de9ba7ed9db1",
+        "name": "Process States",
+        "func": "const deviceId = msg.topic.split(\"/\")[1];\nconst data = msg.payload;\nif (!deviceId) return null;\n\nmsg.collection = \"devices\";\nmsg.operation = \"updateOne\";\n\nconst updateObject = {\n    $set: {\n        state: {\n            led1: data.led1 || null, \n            led2: data.led2 || null, \n            led3: data.led3 || null,\n            last_updated: new Date() \n        }\n    }\n}\n\nmsg.payload = [{ device_id: deviceId }];\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 600,
+        "y": 260,
+        "wires": [
+            [
+                "e2f46f02fa6dcced",
+                "90c336c95efbe6a1"
+            ]
+        ]
+    },
+    {
+        "id": "e2f46f02fa6dcced",
+        "type": "mongodb4",
+        "z": "c073de9ba7ed9db1",
+        "clientNode": "37506c72251a603c",
+        "mode": "collection",
+        "collection": "",
+        "operation": "",
+        "output": "toArray",
+        "maxTimeMS": "0",
+        "handleDocId": false,
+        "name": "Devices",
+        "x": 860,
+        "y": 180,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "cb1462e0934a9a73",
+        "type": "uuid",
+        "z": "c073de9ba7ed9db1",
+        "uuidVersion": "v4",
+        "namespaceType": "",
+        "namespace": "",
+        "namespaceCustom": "",
+        "name": "",
+        "field": "payload._id",
+        "fieldType": "msg",
+        "x": 390,
+        "y": 180,
+        "wires": [
+            [
+                "de1a752d8ca4a0e6"
+            ]
+        ]
+    },
+    {
+        "id": "660990a0e4fe5f49",
+        "type": "uuid",
+        "z": "c073de9ba7ed9db1",
+        "uuidVersion": "v4",
+        "namespaceType": "",
+        "namespace": "",
+        "namespaceCustom": "",
+        "name": "",
+        "field": "payload._id",
+        "fieldType": "msg",
+        "x": 390,
+        "y": 260,
+        "wires": [
+            [
+                "b04b7d98158a701c"
+            ]
+        ]
+    },
+    {
+        "id": "afe8773ad24dd377",
+        "type": "http in",
+        "z": "c073de9ba7ed9db1",
+        "name": "POST Command",
+        "url": "/api/device/:id/cmd",
+        "method": "post",
+        "upload": false,
+        "skipBodyParsing": false,
+        "swaggerDoc": "",
+        "x": 220,
+        "y": 340,
+        "wires": [
+            [
+                "4dddafb94bdc79b7"
+            ]
+        ]
+    },
+    {
+        "id": "f5bd8c7902b14bee",
+        "type": "function",
+        "z": "c073de9ba7ed9db1",
+        "name": "Create Command",
+        "func": "const deviceId = msg.req.params.id;\nconst body = msg.req.body;\nconst response = { ...msg, statusCode: 200, payload: { ok: true } };\n\nconst command = {\n    topic: `device/${deviceId}/cmd`,\n    payload: {\n        target: body.target,\n        state: body.state\n    },\n    qos: 1,\n    retain: false\n};\n\nreturn [response, command];",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 610,
+        "y": 340,
+        "wires": [
+            [
+                "3ca121541921b54c"
+            ],
+            [
+                "ea4842c3f32db8c0"
+            ]
+        ]
+    },
+    {
+        "id": "3ca121541921b54c",
+        "type": "http response",
+        "z": "c073de9ba7ed9db1",
+        "name": "REPLY - 200",
+        "statusCode": "",
+        "headers": {},
+        "x": 870,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "ea4842c3f32db8c0",
+        "type": "mqtt out",
+        "z": "c073de9ba7ed9db1",
+        "name": "Send Command Device",
+        "topic": "",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "dab3ad35f7fbabda",
+        "x": 910,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "4dddafb94bdc79b7",
+        "type": "uuid",
+        "z": "c073de9ba7ed9db1",
+        "uuidVersion": "v4",
+        "namespaceType": "",
+        "namespace": "",
+        "namespaceCustom": "",
+        "name": "",
+        "field": "payload._id",
+        "fieldType": "msg",
+        "x": 390,
+        "y": 340,
+        "wires": [
+            [
+                "f5bd8c7902b14bee"
+            ]
+        ]
+    },
+    {
+        "id": "90c336c95efbe6a1",
+        "type": "websocket out",
+        "z": "c073de9ba7ed9db1",
+        "name": "Update Frontend",
+        "server": "955b0537cc1cd302",
+        "client": "",
+        "x": 890,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "bd8c4e87b9ddc41a",
+        "type": "http in",
+        "z": "c073de9ba7ed9db1",
+        "name": "GET Devices",
+        "url": "/api/devices",
+        "method": "get",
+        "upload": false,
+        "skipBodyParsing": false,
+        "swaggerDoc": "",
+        "x": 210,
+        "y": 100,
+        "wires": [
+            [
+                "b3e7f65682101b2c"
+            ]
+        ]
+    },
+    {
+        "id": "b2156cc82f418900",
+        "type": "http response",
+        "z": "c073de9ba7ed9db1",
+        "name": "REPLY - 200 JSON",
+        "statusCode": "200",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "x": 890,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "b3e7f65682101b2c",
+        "type": "function",
+        "z": "c073de9ba7ed9db1",
+        "name": "Find All Devices",
+        "func": "msg.collection = \"devices\";\nmsg.operation = \"find\";\nmsg.payload = [{}, { sort: { 'status.online': -1, device_id: 1 }}]\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 420,
+        "y": 100,
+        "wires": [
+            [
+                "4b97829ddee9ba73"
+            ]
+        ]
+    },
+    {
+        "id": "4b97829ddee9ba73",
+        "type": "mongodb4",
+        "z": "c073de9ba7ed9db1",
+        "clientNode": "37506c72251a603c",
+        "mode": "collection",
+        "collection": "",
+        "operation": "",
+        "output": "toArray",
+        "maxTimeMS": "0",
+        "handleDocId": false,
+        "name": "Devices",
+        "x": 640,
+        "y": 100,
+        "wires": [
+            [
+                "b2156cc82f418900"
+            ]
+        ]
+    }
+]

@@ -1,0 +1,76 @@
+:root{
+  --bg:#0b0e14; --card:#111827; --muted:#9ca3af; --ink:#e5e7eb; --border:#334155; --pane:#0f172a;
+  --accent:#2563eb; --ok:#34d399; --err:#f87171;
+}
+
+body{background:var(--bg);color:var(--ink)}
+
+.container{
+  padding:24px; max-width:90vw; margin:50px auto;
+  display:flex; flex-direction:column; gap:16px;
+}
+
+
+.headerRow{
+  display:flex; align-items:center; gap:12px; margin-bottom:2px;
+}
+.title{ font-size:22px; font-weight:700; margin:0; }
+.conn{ margin-left:auto; font-size:14px; color:var(--muted); }
+.connOk{ color: var(--ok); }
+.connErr{ color: var(--err); }
+
+.card{
+  background:var(--card); padding:20px; border-radius:16px;
+  box-shadow:0 10px 30px rgba(0,0,0,.35); border:1px solid var(--border);
+}
+
+.grid{
+  display:grid; gap:16px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+
+.device{
+  background:var(--pane); border:1px solid var(--border); border-radius:12px; padding:14px;
+}
+
+.deviceHead{
+  display:flex; align-items:center; gap:8px; margin-bottom:10px;
+}
+.deviceTitle{ font-weight:600; }
+.pill{
+  font-size:12px; padding:4px 8px; border-radius:999px;
+  background:var(--pane); border:1px solid var(--border); color:var(--muted);
+}
+
+.ledGrid{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
+.lampCard{ display:flex; flex-direction:column; gap:6px; }
+.labelId{ font-size:11px; color:#a1a1aa; }
+.lampRow{ display:flex; align-items:center; gap:10px; }
+
+.lamp{
+  width:52px; height:52px; border-radius:50%;
+  background: radial-gradient(closest-side,#1f2937 0%,#111827 70%);
+  box-shadow: inset 0 0 26px rgba(0,0,0,.6), 0 6px 22px rgba(0,0,0,.35);
+  transition: all .2s ease;
+  border:1px solid #1e293b;
+}
+.lampOn{
+  background: radial-gradient(closest-side,#fffbd1 0%,#fef08a 35%,#fde047 60%,#111827 100%);
+  box-shadow: 0 0 24px rgba(255,241,118,.6), 0 0 70px rgba(255,241,118,.35);
+  border-color:#fde047;
+}
+
+.btnRow{ display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+.btn{
+  padding:8px 10px; border-radius:10px; border:1px solid var(--border);
+  background:var(--pane); color:var(--ink); cursor:pointer;
+  font-weight:600; transition:transform .06s ease, background .12s ease, box-shadow .12s ease;
+}
+.btn:hover{ transform: translateY(-1px); }
+.btn:active{ transform: translateY(0); }
+.btnPrimary{ background:var(--accent); border:none; color:#fff; }
+.btnGhost{ background:#0b1220; }
+.btnBusy{ opacity:.6; cursor:wait; }
+
+.meta{ margin-top:6px; font-size:12px; color:var(--muted); }
+.footer{ font-size:12px; color:var(--muted); margin-top:6px; }

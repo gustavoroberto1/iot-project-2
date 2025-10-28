@@ -1,0 +1,42 @@
+0 verbose cli /usr/local/bin/node /usr/local/bin/npm
+1 info using npm@10.8.2
+2 info using node@v20.19.4
+3 silly config load:file:/usr/local/lib/node_modules/npm/npmrc
+4 silly config load:file:/data/.npmrc
+5 silly config load:file:/usr/src/node-red/.npmrc
+6 silly config load:file:/usr/local/etc/npmrc
+7 verbose title npm install node-red-contrib-mongodb4@3.1.1
+8 verbose argv "install" "--no-audit" "--no-update-notifier" "--no-fund" "--save" "--save-prefix" "~" "--omit" "dev" "--engine-strict" "node-red-contrib-mongodb4@3.1.1"
+9 verbose logfile logs-max:10 dir:/data/.npm/_logs/2025-10-28T16_34_02_856Z-
+10 verbose logfile /data/.npm/_logs/2025-10-28T16_34_02_856Z-debug-0.log
+11 silly packumentCache heap:4345298944 maxSize:1086324736 maxEntrySize:543162368
+12 silly logfile done cleaning log files
+13 silly idealTree buildDeps
+14 silly fetch manifest node-red-contrib-mongodb4@3.1.1
+15 silly packumentCache full:https://registry.npmjs.org/node-red-contrib-mongodb4 cache-miss
+16 http fetch GET 200 https://registry.npmjs.org/node-red-contrib-mongodb4 831ms (cache revalidated)
+17 silly packumentCache full:https://registry.npmjs.org/node-red-contrib-mongodb4 set size:111280 disposed:false
+18 silly placeDep ROOT node-red-contrib-mongodb4@3.1.1 REPLACE for: node-red-project@0.0.1 want: 3.1.1
+19 silly reify moves {}
+20 warn deprecated uuid@3.2.1: Please upgrade  to version 7 or higher.  Older versions may use Math.random() in certain circumstances, which is known to be problematic.  See https://v8.dev/blog/math-random for details.
+21 silly ADD node_modules/node-red-contrib-mongodb4
+22 silly ADD node_modules/whatwg-url
+23 silly ADD node_modules/webidl-conversions
+24 silly ADD node_modules/uuid
+25 silly ADD node_modules/tr46
+26 silly ADD node_modules/sparse-bitfield
+27 silly ADD node_modules/punycode
+28 silly ADD node_modules/node-red-contrib-uuid
+29 silly ADD node_modules/mongodb-connection-string-url
+30 silly ADD node_modules/mongodb
+31 silly ADD node_modules/memory-pager
+32 silly ADD node_modules/bson
+33 silly ADD node_modules/@types/whatwg-url
+34 silly ADD node_modules/@types/webidl-conversions
+35 silly ADD node_modules/@mongodb-js/saslprep
+36 verbose cwd /data
+37 verbose os Linux 6.16.3-76061603-generic
+38 verbose node v20.19.4
+39 verbose npm  v10.8.2
+40 verbose exit 0
+41 info ok
