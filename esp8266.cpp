@@ -1,122 +1,138 @@
-#include <WiFi.h>              // ESP8266? use <ESP8266WiFi.h>
+#include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 
-// ===== CONFIGURE =====
-const char* WIFI_SSID = "SUA_REDE";
-const char* WIFI_PASS = "SUA_SENHA";
-const char* MQTT_HOST = "192.168.0.10";
+const char* WIFI_SSID = "iotdesi";
+const char* WIFI_PASSWORD = "iotdesi2025";
+
 const uint16_t MQTT_PORT = 1883;
+const char* MQTT_SERVER = "192.168.0.2";
+const char* MQTT_USER = "aluno";
+const char* MQTT_PASS = "aluno123";
+const char* MQTT_TOPIC_INFO = "device/ESP8266-GUSTAVO/info";
+const char* MQTT_TOPIC_STATE = "device/ESP8266-GUSTAVO/state";
+const char* MQTT_TOPIC_CMD = "device/ESP8266-GUSTAVO/cmd";
 
-const char* DEVICE_MODEL = "ESP32";
-const char* DEVICE_LOC   = "SALA";
+bool led1_state = false, led2_state = false, led3_state = false;
+WiFiClient espClient;
+PubSubClient mqtt(espClient);
 
-// LEDs (ajuste se quiser)
-const uint8_t LED1 = 2, LED2 = 4, LED3 = 5;
+void publishInfo() {
+  Serial.printf("Enviando info topic: %s", MQTT_TOPIC_INFO);
+  Serial.println();
 
-// ===== OBJETOS =====
-WiFiClient net;
-PubSubClient mqtt(net);
+  StaticJsonDocument<256> payload;
+  payload["model"] = "ESP8266";
+  payload["location"] = "LAB IOT";
+  payload["ip_address"] = WiFi.localIP().toString();
+  payload["mac_address"] = WiFi.macAddress();
 
-// ===== VARS =====
-String devId, tInfo, tState, tCmd;
-bool s1=false, s2=false, s3=false;
-
-// ===== SIMPLE HELPERS =====
-void setLed(uint8_t n, bool on){
-  if (n==1){ s1=on; digitalWrite(LED1, on); }
-  else if (n==2){ s2=on; digitalWrite(LED2, on); }
-  else if (n==3){ s3=on; digitalWrite(LED3, on); }
+  char buffer[256];
+  size_t data = serializeJson(payload, buffer, sizeof(buffer));
+  mqtt.publish(MQTT_TOPIC_INFO, buffer, data);
+  Serial.println("Enviado!!");
 }
 
-void publishInfo(){
-  StaticJsonDocument<256> doc;
-  doc["model"]       = DEVICE_MODEL;
-  doc["ip_address"]  = WiFi.localIP().toString();
-  doc["mac_address"] = WiFi.macAddress();
-  doc["location"]    = DEVICE_LOC;
+void publishState() {
+  Serial.printf("Enviando info topic: %s", MQTT_TOPIC_STATE);
+  Serial.println();
+  StaticJsonDocument<128> payload;
+  payload["led1"] = led1_state ? "on" : "off";
+  payload["led2"] = led2_state ? "on" : "off";
+  payload["led3"] = led3_state ? "on" : "off";
 
-  char buf[256];
-  size_t n = serializeJson(doc, buf, sizeof(buf));
-  mqtt.publish(tInfo.c_str(), buf, n, true); // retain=true
+  char buffer[128];
+  size_t data = serializeJson(payload, buffer, sizeof(buffer));
+  mqtt.publish(MQTT_TOPIC_STATE, buffer, data);
+  Serial.println("Enviado!!");
 }
 
-void publishState(){
-  StaticJsonDocument<128> doc;
-  doc["led1"] = s1 ? "on" : "off";
-  doc["led2"] = s2 ? "on" : "off";
-  doc["led3"] = s3 ? "on" : "off";
-
-  char buf[128];
-  size_t n = serializeJson(doc, buf, sizeof(buf));
-  mqtt.publish(tState.c_str(), buf, n, true); // retain=true
-}
-
-// ===== CORE =====
-void connectWiFi(){
-  if (WiFi.status()==WL_CONNECTED) return;
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(WIFI_SSID, WIFI_PASS);
-  for (uint8_t i=0; i<40 && WiFi.status()!=WL_CONNECTED; i++){ delay(250); }
-}
-
-void connectMQTT(){
-  if (mqtt.connected() || WiFi.status()!=WL_CONNECTED) return;
-  mqtt.setServer(MQTT_HOST, MQTT_PORT);
-  String cid = "esp32-" + WiFi.macAddress(); cid.replace(":","");
-  for (uint8_t i=0; i<10 && !mqtt.connected(); i++){
-    mqtt.connect(cid.c_str());
-    if (!mqtt.connected()) delay(1000);
+void connectWifi() {
+  if(WiFi.status() == WL_CONNECTED){
+    return;
   }
-  if (mqtt.connected()){
-    mqtt.subscribe(tCmd.c_str(), 1);
-    publishInfo();
-    publishState();
+
+  Serial.printf("Conectando ao Wi-Fi: %s", WIFI_SSID);
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+
+  uint8_t tentativas = 0;
+  while(WiFi.status() != WL_CONNECTED && tentativas < 20){
+    delay(500);
+    Serial.print(".");
+    tentativas++;
+  }
+
+  if(WiFi.status() == WL_CONNECTED) {
+    Serial.print("Wifi conectado! IP: ");
+    Serial.print(WiFi.localIP());
+  }else {
+    Serial.print("Falha ao conectar no WIFI.");
   }
 }
 
-// Payload esperado: {"target":"led1","state":"on"}
-void onMqtt(char* topic, byte* payload, unsigned int len){
-  StaticJsonDocument<128> doc;
-  if (deserializeJson(doc, payload, len)) return;
+void connectMqtt() {
+  if(mqtt.connected()){
+    return;
+  }
 
-  const char* target = doc["target"];
-  const char* state  = doc["state"];
-  if (!target || !state) return;
-
-  uint8_t which = (!strcmp(target,"led1"))?1:(!strcmp(target,"led2"))?2:(!strcmp(target,"led3"))?3:0;
-  if (!which) return;
-
-  bool turnOn = !strcmp(state,"on");
-  setLed(which, turnOn);
-  publishState(); // confirma novo estado
+  Serial.print("Conectando ao MQTT..");
+  while(!mqtt.connected() && WiFi.status() == WL_CONNECTED){
+    String clientId = "esp8266-" + String(WiFi.macAddress());
+    if(mqtt.connect(clientId.c_str(), MQTT_USER, MQTT_PASS)){
+      Serial.print("Conectado ao MQTT...");
+      mqtt.subscribe(MQTT_TOPIC_CMD);
+      publishInfo();
+      publishState();
+    }else {
+      Serial.print("Tentando conectar em 3s....");
+      Serial.print("\n");
+      delay(3000);
+    }
+  }
 }
 
-void setup(){
+// { target: "led1", state: "ON/OFF"}
+void subscribeCmd(char* topic, byte* payload, unsigned int lenght) {
+  StaticJsonDocument<128> document;
+  if(deserializeJson(document, payload, lenght)) return;
+
+  const char* target = document["target"];
+  const char* state = document["state"];
+
+  bool isOn = (strcasecmp(state, "on") == 0);
+  if(strcmp(target, "led1") == 0){
+    Serial.println("Entrouuuu aqui");
+    led1_state = isOn;
+    digitalWrite(LED_BUILTIN, isOn ? HIGH : LOW);
+  }else if(strcmp(target, "led2") == 0){
+    led2_state = isOn;
+  }else if(strcmp(target, "led3") == 0){
+    led3_state = isOn;
+  }
+
+  publishState();
+}
+
+void setup() {
   Serial.begin(115200);
-  pinMode(LED1, OUTPUT); pinMode(LED2, OUTPUT); pinMode(LED3, OUTPUT);
-  setLed(1,false); setLed(2,false); setLed(3,false);
-
-  devId = WiFi.macAddress(); devId.replace(":","");
-  tInfo  = "device/" + devId + "/info";
-  tState = "device/" + devId + "/state";
-  tCmd   = "device/" + devId + "/cmd";
-
-  mqtt.setCallback(onMqtt);
-
-  connectWiFi();
-  connectMQTT();
+  WiFi.mode(WIFI_STA);
+  mqtt.setServer(MQTT_SERVER, MQTT_PORT);
+  mqtt.setCallback(subscribeCmd);
+  connectWifi();
+  connectMqtt();
 }
 
-void loop(){
-  if (WiFi.status()!=WL_CONNECTED) connectWiFi();
-  if (!mqtt.connected())           connectMQTT();
-  mqtt.loop();
-
-  // publica state a cada 10s (simples)
-  static unsigned long last=0;
-  if (mqtt.connected() && millis()-last > 10000){
-    last = millis();
-    publishState();
+void loop() {
+  if(WiFi.status() != WL_CONNECTED){
+    connectWifi();
   }
+
+  // static unsigned long lastUpdate = 0;
+  // if(mqtt.connected() && millis() - lastUpdate > 10000){
+  //   lastUpdate = millis();
+  //   publishState();
+  // }
 }
+
+
+
