@@ -38,8 +38,8 @@ void publishState() {
   Serial.println();
   StaticJsonDocument<128> payload;
   payload["led1"] = led1_state ? "on" : "off";
-  payload["led2"] = led2_state ? "on" : "off";
-  payload["led3"] = led3_state ? "on" : "off";
+
+
 
   char buffer[128];
   size_t data = serializeJson(payload, buffer, sizeof(buffer));
@@ -101,9 +101,9 @@ void subscribeCmd(char* topic, byte* payload, unsigned int lenght) {
 
   bool isOn = (strcasecmp(state, "on") == 0);
   if(strcmp(target, "led1") == 0){
-    Serial.println("Entrouuuu aqui");
     led1_state = isOn;
-    digitalWrite(LED_BUILTIN, isOn ? HIGH : LOW);
+    Serial.print(isOn);
+    digitalWrite(LED_BUILTIN, !isOn);
   }else if(strcmp(target, "led2") == 0){
     led2_state = isOn;
   }else if(strcmp(target, "led3") == 0){
@@ -115,6 +115,8 @@ void subscribeCmd(char* topic, byte* payload, unsigned int lenght) {
 
 void setup() {
   Serial.begin(115200);
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, LOW);
   WiFi.mode(WIFI_STA);
   mqtt.setServer(MQTT_SERVER, MQTT_PORT);
   mqtt.setCallback(subscribeCmd);
@@ -123,9 +125,9 @@ void setup() {
 }
 
 void loop() {
-  if(WiFi.status() != WL_CONNECTED){
-    connectWifi();
-  }
+  if(WiFi.status() != WL_CONNECTED) connectWifi();
+  if(!mqtt.connected()) connectMqtt();
+  mqtt.loop();
 
   // static unsigned long lastUpdate = 0;
   // if(mqtt.connected() && millis() - lastUpdate > 10000){
