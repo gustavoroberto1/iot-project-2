@@ -39,8 +39,6 @@ void publishState() {
   StaticJsonDocument<128> payload;
   payload["led1"] = led1_state ? "on" : "off";
 
-
-
   char buffer[128];
   size_t data = serializeJson(payload, buffer, sizeof(buffer));
   mqtt.publish(MQTT_TOPIC_STATE, buffer, data);
