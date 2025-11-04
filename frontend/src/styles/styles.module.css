@@ -42,7 +42,7 @@ body{background:var(--bg);color:var(--ink)}
   background:var(--pane); border:1px solid var(--border); color:var(--muted);
 }
 
-.ledGrid{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
+.ledGrid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; row-gap: 30px; }
 .lampCard{ display:flex; flex-direction:column; gap:6px; }
 .labelId{ font-size:11px; color:#a1a1aa; }
 .lampRow{ display:flex; align-items:center; gap:10px; }

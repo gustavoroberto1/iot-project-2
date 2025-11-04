@@ -1,6 +1,14 @@
 import axios from "axios";
 
 export type LedState = "on" | "off";
+
+type NumericSensorKey =
+  | "potenciometro1"
+  | "fotorresistor1"
+  | "ultrassonico1"
+  | "temperatura1"
+  | "umidade1";
+
 export type DeviceDoc = {
   _id?: string;
   device_id: string;
@@ -11,14 +19,13 @@ export type DeviceDoc = {
   created_at?: string;
   update_at?: string;
   raw?: string;
-  state?: {
-    led1?: LedState;
-    led2?: LedState;
-    led3?: LedState;
-    last_updated?: string;
-  };
+  state?: (
+    {
+      led1?: LedState;
+      last_updated?: string;
+    } &Partial<Record<NumericSensorKey, number>>
+  );
 };
-
 
 export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:1880",
